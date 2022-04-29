@@ -23,24 +23,28 @@ async function run () {
         await client.connect();
         // create database
         const database = client.db('EidCollectionDb');
-        const productsCollections = database.collection('products')
-        const ShoesCollections = database.collection('shoes');
-        const manCollections = database.collection('manCloths');
-        const ladiesCollections = database.collection('womanCloths');
-        const shartCollections = database.collection('shart');
+        const productsCollections = database.collection('products');
+        const ordersCollections = database.collection('orders');
+
 
         app.post ('/addedProduct',async(req,res) => {
             const product = req.body;
             const result = await productsCollections.insertOne(product);
             console.log(`A document was inserted with the _id: ${result.insertedId}`);
             res.json(result);
+        })
 
+        // store users orders
+        app.post('/order',async(req,res) => {
+            const product = req.body;
+            const result = await ordersCollections.insertOne(product);
+            console.log(`A document was inserted with the _id: ${result.insertedId}`);
         })
 
         app.get('/products',async(req,res) => {
             const cursor = productsCollections.find({});
             const result = await cursor.toArray();
-            console.log(result);
+            // console.log(result);
             res.json(result);
         })
 
@@ -52,57 +56,11 @@ async function run () {
             res.json(result)
         })
 
-        // app.post('/ladiesProduct',async(req,res) => {
-        //     const product = req.body;
-        //     const result = await ladiesCollections.insertOne(product);
-        //     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-        //     res.json(result);
-        // })
-        // app.post('/manProducts',async(req,res) => {
-        //     const product = req.body;
-        //     const result = await manCollections.insertOne(product);
-        //     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-        //     res.json(result);
-        // })
-
-        // app.post('/shoes',async(req,res) => {
-        //     const shoe = req.body;
-        //     // console.log(shoe);
-        //     const result = await ShoesCollections.insertOne(shoe);
-        //     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-        //     res.json(result);
-        // })
-
-        // app.post('/shart',async(req,res) => {
-        //     const shart = req.body;
-        //     const result = await shartCollections.insertOne(shart);
-        //     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-        //     res.json(result);
-        // })
-
         app.get('/allProducts',async(req,res) => {
            const cursor = ladiesCollections.find({});
            const ladiesProducts = await cursor.toArray();
-            console.log(ladiesProducts)
+            // console.log(ladiesProducts)
             res.json(ladiesProducts);
-        })
-
-        app.get('/shoes',async(req,res) => {
-            const cursor = ShoesCollections.find({});
-            const result = await cursor.toArray();
-            res.json(result);
-        })
-
-        app.get('/shart',async(req,res) => {
-            const cursor = shartCollections.find({});
-            const result = await cursor.toArray();
-            res.json(result);
-        })
-
-        app.get('/manProducts',async(req,res) => {
-            const cursor = manCollections.find({});
-            const result = await cursor.toArray();
-            res.json(result);
         })
 
     }
