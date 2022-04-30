@@ -26,6 +26,7 @@ async function run() {
         const database = client.db('EidCollectionDb');
         const productsCollections = database.collection('products');
         const ordersCollections = database.collection('orders');
+        const usersCollections = database.collection('users');
 
 
         app.post('/addedProduct', async (req, res) => {
@@ -43,6 +44,26 @@ async function run() {
             res.json(result);
         })
 
+        // saved user database;
+        app.post('/registerUsers',async(req,res) => {
+            const user = req.body;
+            const result = await usersCollections.insertOne(user);
+            console.log(`A document was inserted with the _id: ${result.insertedId}`);
+            res.json(result);
+        })
+
+        // 
+        app.put('/registerUsers',async(req,res) => {
+            const user = req.body;
+            const filter = {email:user.email};
+            const options = {upsert: true};
+            const updateDoc = {
+                $set:{user}
+            }
+            const result = await usersCollections.updateOne(filter,updateDoc,options);
+            console.log('user added',result);
+            res.json(result);
+        })
         app.get('/products', async (req, res) => {
             const cursor = productsCollections.find({});
             const result = await cursor.toArray();
@@ -57,14 +78,6 @@ async function run() {
             // console.log(result);
             res.json(result)
         })
-
-        app.get('/allProducts', async (req, res) => {
-            const cursor = ladiesCollections.find({});
-            const ladiesProducts = await cursor.toArray();
-            // console.log(ladiesProducts)
-            res.json(ladiesProducts);
-        })
-
         // show all orders
         app.get('/usersOrders', async (req, res) => {
             const cursor = ordersCollections.find({});
@@ -82,12 +95,10 @@ async function run() {
 
         // find specific user orders
         app.get('/myOrders/:email', async (req, res) => {
-           const email = req.params.email;
-           console.log(email);
-           const query = {email};
-           const cursor = ordersCollections.find(query);
-           const result = await cursor.toArray();
-           res.json();
+            const email = req.params.email;
+            const cursor = ordersCollections.find({email});
+            const orders =  await cursor.toArray();
+            res.json(orders);
 
         })
 
