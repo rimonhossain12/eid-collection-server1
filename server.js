@@ -28,7 +28,6 @@ async function run() {
         const ordersCollections = database.collection('orders');
         const usersCollections = database.collection('users');
 
-
         app.post('/addedProduct', async (req, res) => {
             const product = req.body;
             const result = await productsCollections.insertOne(product);
@@ -43,7 +42,6 @@ async function run() {
             console.log(`A document was inserted with the _id: ${result.insertedId}`);
             res.json(result);
         })
-
         // saved user database;
         app.post('/registerUsers',async(req,res) => {
             const user = req.body;
@@ -64,6 +62,15 @@ async function run() {
             console.log('user added',result);
             res.json(result);
         })
+
+        // cancel api create
+        app.delete('/remove/:id',async(req,res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = ordersCollections.find(query);
+            res.json(result);
+        })
+
         app.get('/products', async (req, res) => {
             const cursor = productsCollections.find({});
             const result = await cursor.toArray();
