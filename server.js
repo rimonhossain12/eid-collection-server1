@@ -43,30 +43,41 @@ async function run() {
             res.json(result);
         })
         // saved user database;
-        app.post('/registerUsers',async(req,res) => {
+        app.post('/registerUsers', async (req, res) => {
             const user = req.body;
             const result = await usersCollections.insertOne(user);
+            console.log(result);
             console.log(`A document was inserted with the _id: ${result.insertedId}`);
             res.json(result);
         })
 
         // 
-        app.put('/registerUsers',async(req,res) => {
+        app.put('/registerUsers', async (req, res) => {
             const user = req.body;
-            const filter = {email:user.email};
-            const options = {upsert: true};
+            const filter = { email: user.email };
+            const options = { upsert: true };
             const updateDoc = {
-                $set:{user}
+                $set: { user }
             }
-            const result = await usersCollections.updateOne(filter,updateDoc,options);
-            console.log('user added',result);
+            const result = await usersCollections.updateOne(filter, updateDoc, options);
+            console.log('user added', result);
             res.json(result);
         })
 
+        // update user orders information
+        app.put('/orderUpdate/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = {email};
+            const options = {upsert:true};
+
+            // const updateDoc = {
+            //     $set
+            // }
+        })
         // cancel api create
-        app.delete('/remove/:id',async(req,res) => {
+        app.delete('/remove/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const result = ordersCollections.find(query);
             res.json(result);
         })
@@ -103,10 +114,18 @@ async function run() {
         // find specific user orders
         app.get('/myOrders/:email', async (req, res) => {
             const email = req.params.email;
-            const cursor = ordersCollections.find({email});
-            const orders =  await cursor.toArray();
+            const cursor = ordersCollections.find({ email });
+            const orders = await cursor.toArray();
             res.json(orders);
-
+        })
+        
+        // update user orders information
+        app.get('/orderUpdate/:id',async(req,res) => {
+           const id = req.params.id;
+           const query = {_id: ObjectId(id)};
+           const result = await ordersCollections.findOne(query);
+           console.log('user update data',result);
+           res.json(result);
         })
 
     }
