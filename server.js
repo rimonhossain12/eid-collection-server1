@@ -39,7 +39,7 @@ async function run() {
         app.post('/order', async (req, res) => {
             const product = req.body;
             const result = await ordersCollections.insertOne(product);
-            console.log(`A document was inserted with the _id: ${result.insertedId}`);
+            // console.log(`A document was inserted with the _id: ${result.insertedId}`);
             res.json(result);
         })
         // saved user database;
@@ -126,6 +126,22 @@ async function run() {
            const result = await ordersCollections.findOne(query);
            console.log('user update data',result);
            res.json(result);
+        });
+
+        // admin route
+        app.put('/admin',async(req,res) => {
+            const email = req.body.email;
+            const filter = {email: email};
+            console.log('filter = ',filter);
+            const options = {upsert:true};
+            const updateDoc = {
+                $set:{
+                    role:'admin'
+                },
+            };
+            const result = await usersCollections.updateOne(filter,updateDoc,options);
+            console.log(`email update =`,result);
+            res.json(result);
         })
 
     }
