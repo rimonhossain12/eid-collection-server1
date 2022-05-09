@@ -115,11 +115,11 @@ async function run() {
         // find specific user orders
         app.get('/myOrders/:email', async (req, res) => {
             const email = req.params.email;
-            console.log(email);
+            // console.log(email);
             const query = { email };
             const cursor = ordersCollections.find(query);
             const result = await cursor.toArray();
-            console.log(result);
+            // console.log(result);
             res.json(result);
 
         })
