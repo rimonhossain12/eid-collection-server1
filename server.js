@@ -61,26 +61,21 @@ async function run() {
                 $set: { user }
             }
             const result = await usersCollections.updateOne(filter, updateDoc, options);
-            // console.log('user added', result);
             res.json(result);
         })
 
         // update user orders information
-        app.put('/orderUpdate/:email', async (req, res) => {
-            const email = req.params.email;
-            const filter = { email };
-            const options = { upsert: true };
-
-            // const updateDoc = {
-            //     $set
-            // }
+        app.put('/updatedUserInfo',async(req,res) => {
+            const users = req.body;
+            console.log('update information found',users);
         })
         // cancel api create
         app.delete('/remove/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const result = ordersCollections.find(query);
-            res.json(result);
+           const id = req.params.id;
+           const query = {_id: ObjectId(id)};
+           const result = await ordersCollections.deleteOne(query);
+           console.log(result);
+           res.json(result);
         })
 
         app.get('/products', async (req, res) => {
@@ -135,29 +130,29 @@ async function run() {
 
         // admin route
         app.put('/admin', async (req, res) => {
-            const email = req.body.email;
-            const filter = { email: email };
-            console.log('filter = ', filter);
-            const options = { upsert: true };
+            const user = req.body;
+            const filter = {email:user.email};
+            const options = {upsert : true};
             const updateDoc = {
-                $set: {
-                    role: 'admin'
-                },
-            };
-            const result = await usersCollections.updateOne(filter, updateDoc, options);
-            // console.log(`email update =`,result);
-            res.json(result);
+                $set:{
+                    role:'Admin'
+                }
+            }
+            const result = await usersCollections.updateOne(filter,updateDoc,options);
+            console.log('make admin',result);
         });
 
         // get admin api create;
-        app.get('/admin/:email', async (req, res) => {
+        app.get('/foundAdmin/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
-            const user = usersCollections.findOne(query);
-            const isAdmin = false;
+            const user = await usersCollections.findOne(query);
+            console.log('admin api users',user);
+            let isAdmin = false;
             if (user?.role === 'Admin') {
-                isAdmin: true;
+                isAdmin =  true;
             }
+            console.log('found result',isAdmin);
             res.json({ admin: isAdmin });
         })
 
