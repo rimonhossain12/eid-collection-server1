@@ -27,6 +27,8 @@ async function run() {
         const productsCollections = database.collection('products');
         const ordersCollections = database.collection('orders');
         const usersCollections = database.collection('users');
+        const userReview = database.collection('review');
+        const subscribedUser = database.collection('subscribed');
 
         app.post('/addedProduct', async (req, res) => {
             const product = req.body;
@@ -52,6 +54,22 @@ async function run() {
             res.json(result);
         })
 
+        // store user review
+        app.post('/review', async (req, res) => {
+            const data = req.body;
+            const result = await userReview.insertOne(data);
+            console.log(`A document was inserted with the _id: ${result.insertedId}`);
+            res.json(result);
+        })
+
+        // subscribed user store
+        app.post('/subscribed',async(req,res) => {
+            const body = req.body;
+            console.log('subs user',body);
+            const result = await subscribedUser.insertOne(body);
+            console.log(`A document was inserted with the _id: ${result.insertedId}`);
+            res.json(result);
+        })
         // 
         app.put('/registerUsers', async (req, res) => {
             const user = req.body;
@@ -65,17 +83,17 @@ async function run() {
         })
 
         // update user orders information
-        app.put('/updatedUserInfo',async(req,res) => {
+        app.put('/updatedUserInfo', async (req, res) => {
             const users = req.body;
-            console.log('update information found',users);
+            console.log('update information found', users);
         })
         // cancel api create
         app.delete('/remove/:id', async (req, res) => {
-           const id = req.params.id;
-           const query = {_id: ObjectId(id)};
-           const result = await ordersCollections.deleteOne(query);
-           console.log(result);
-           res.json(result);
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollections.deleteOne(query);
+            console.log(result);
+            res.json(result);
         })
 
         app.get('/products', async (req, res) => {
@@ -131,15 +149,15 @@ async function run() {
         // admin route
         app.put('/admin', async (req, res) => {
             const user = req.body;
-            const filter = {email:user.email};
-            const options = {upsert : true};
+            const filter = { email: user.email };
+            const options = { upsert: true };
             const updateDoc = {
-                $set:{
-                    role:'Admin'
+                $set: {
+                    role: 'Admin'
                 }
             }
-            const result = await usersCollections.updateOne(filter,updateDoc,options);
-            console.log('make admin',result);
+            const result = await usersCollections.updateOne(filter, updateDoc, options);
+            // console.log('make admin',result);
         });
 
         // get admin api create;
@@ -147,13 +165,20 @@ async function run() {
             const email = req.params.email;
             const query = { email: email };
             const user = await usersCollections.findOne(query);
-            console.log('admin api users',user);
+            // console.log('admin api users',user);
             let isAdmin = false;
             if (user?.role === 'Admin') {
-                isAdmin =  true;
+                isAdmin = true;
             }
-            console.log('found result',isAdmin);
+            // console.log('found result',isAdmin);
             res.json({ admin: isAdmin });
+        })
+
+        // get all review collection
+        app.get('/userReview', async (req, res) => {
+            const cursor = userReview.find({});
+            const result = await cursor.toArray();
+            res.json(result);
         })
 
     }
