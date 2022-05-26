@@ -63,9 +63,9 @@ async function run() {
         })
 
         // subscribed user store
-        app.post('/subscribed',async(req,res) => {
+        app.post('/subscribed', async (req, res) => {
             const body = req.body;
-            console.log('subs user',body);
+            console.log('subs user', body);
             const result = await subscribedUser.insertOne(body);
             console.log(`A document was inserted with the _id: ${result.insertedId}`);
             res.json(result);
@@ -95,7 +95,14 @@ async function run() {
             console.log(result);
             res.json(result);
         })
-
+        // delete products
+        app.delete('/deleteProduct/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productsCollections.deleteOne(query);
+            console.log(result);
+            res.json(result);
+        })
         app.get('/products', async (req, res) => {
             const cursor = productsCollections.find({});
             const result = await cursor.toArray();
