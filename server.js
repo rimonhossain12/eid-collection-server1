@@ -116,8 +116,6 @@ async function run() {
             else{
                 products = await cursor.toArray();
             }
-            
-            products
             res.json({
                 count,
                 products
