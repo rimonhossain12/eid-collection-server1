@@ -123,7 +123,12 @@ async function run() {
             const orders = await cursor.toArray();
             res.json(orders);
         })
-
+        // subscriber user
+        app.get('/subscribers',async(req,res) =>{
+            const cursor = subscribedUser.find({});
+            const result = await cursor.toArray();
+            res.json(result);
+        })
         // get all users orders
         app.get('/allOrders', async (req, res) => {
             const cursor = ordersCollections.find({});
