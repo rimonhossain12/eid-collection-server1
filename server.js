@@ -103,6 +103,27 @@ async function run() {
             console.log(result);
             res.json(result);
         })
+        // find 10 products
+        app.get('/productsLimit',async(req,res) => {
+            const cursor = productsCollections.find({});
+            const page = req.query.page;
+            const size = parseInt(req.query.size);
+            const count = await productsCollections.estimatedDocumentCount();
+            let products;
+            if(page){
+                products = await cursor.skip(page*size).limit(size).toArray();
+            }
+            else{
+                products = await cursor.toArray();
+            }
+            
+            products
+            res.json({
+                count,
+                products
+            });
+        })
+        // find all the products
         app.get('/products', async (req, res) => {
             const cursor = productsCollections.find({});
             const result = await cursor.toArray();
