@@ -81,10 +81,25 @@ async function run() {
         })
 
         // update user orders information
-        app.put('/updatedUserInfo', async (req, res) => {
-            const users = req.body;
-            console.log('update information found', users);
+        app.put('/updateInfo/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateUser = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    name: updateUser.name,
+                    quantity: updateUser.quantity,
+                    mobile: updateUser.mobile,
+                    District: updateUser.District,
+                    Present_Address: updateUser.Present_Address
+                }
+            }
+            const result = await ordersCollections.updateOne(filter, updateDoc, options);
+            console.log(`A document was updated with the _id: ${result.insertedId}`)
+            res.json(result)
         })
+
         // cancel api create
         app.delete('/remove/:id', async (req, res) => {
             const id = req.params.id;
@@ -102,16 +117,16 @@ async function run() {
             res.json(result);
         })
         // find 10 products
-        app.get('/productsLimit',async(req,res) => {
+        app.get('/productsLimit', async (req, res) => {
             const cursor = productsCollections.find({});
             const page = req.query.page;
             const size = parseInt(req.query.size);
             const count = await productsCollections.estimatedDocumentCount();
             let products;
-            if(page){
-                products = await cursor.skip(page*size).limit(size).toArray();
+            if (page) {
+                products = await cursor.skip(page * size).limit(size).toArray();
             }
-            else{
+            else {
                 products = await cursor.toArray();
             }
             res.json({
@@ -141,7 +156,7 @@ async function run() {
             res.json(orders);
         })
         // subscriber user
-        app.get('/subscribers',async(req,res) =>{
+        app.get('/subscribers', async (req, res) => {
             const cursor = subscribedUser.find({});
             const result = await cursor.toArray();
             res.json(result);
