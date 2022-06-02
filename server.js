@@ -34,11 +34,10 @@ async function run() {
             console.log(`A document was inserted with the _id: ${result.insertedId}`);
             res.json(result);
         })
-
         // store users orders
         app.post('/order', async (req, res) => {
             const product = req.body;
-            console.log('users order info', product);
+            console.log(product);
             const result = await ordersCollections.insertOne(product);
             console.log(`A document was inserted with the _id: ${result.insertedId}`);
             res.json(result);
@@ -171,13 +170,11 @@ async function run() {
 
         // find specific user orders
         app.get('/myOrders/:email', async (req, res) => {
-            const email = req.params.email;
-            // console.log(email);
-            const query = { email };
-            const cursor = ordersCollections.find(query);
-            const result = await cursor.toArray();
-            // console.log(result);
-            res.json(result);
+           const email = req.params.email;
+           const query = {email};
+           const cursor = ordersCollections.find(query);
+           const result = await cursor.toArray();
+           res.json(result);
 
         })
 
