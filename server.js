@@ -2,6 +2,7 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 const { response } = require('express');
+const { parse } = require('dotenv');
 const ObjectId = require('mongodb').ObjectId;
 const app = express();
 const port = process.env.PORT || 5000;
@@ -35,13 +36,19 @@ async function run() {
             res.json(result);
         })
         // store users orders
-        app.post('/order', async (req, res) => {
-            const product = req.body;
-            console.log(product);
-            const result = await ordersCollections.insertOne(product);
-            console.log(`A document was inserted with the _id: ${result.insertedId}`);
-            res.json(result);
+        app.put('/order', async (req, res) => {
+            const user = req.body;
+            let totalOrder = req.body.quantity;
+            console.log(totalOrder);
+            const filter = { email: user.email, img: user.productImg };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set:{user}
+            }
+            const result = await ordersCollections.updateOne(filter, updateDoc, options)
+            res.json(result)
         })
+       
         // saved user database;
         app.post('/registerUsers', async (req, res) => {
             const user = req.body;
@@ -81,22 +88,23 @@ async function run() {
 
         // update user orders information
         app.put('/updateInfo/:id', async (req, res) => {
-            const id = req.params.id;
-            const updateUser = req.body;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: {
-                    name: updateUser.name,
-                    quantity: updateUser.quantity,
-                    mobile: updateUser.mobile,
-                    District: updateUser.District,
-                    Present_Address: updateUser.Present_Address
-                }
-            }
-            const result = await ordersCollections.updateOne(filter, updateDoc, options);
-            console.log(`A document was updated with the _id: ${result.insertedId}`)
-            res.json(result)
+            console.log('user update information', req.params.body);
+            // const id = req.params.id;
+            // const updateUser = req.body;
+            // const filter = { _id: ObjectId(id) };
+            // const options = { upsert: true };
+            // const updateDoc = {
+            //     $set: {
+            //         name: updateUser.name,
+            //         quantity: updateUser.quantity,
+            //         mobile: updateUser.mobile,
+            //         District: updateUser.District,
+            //         Present_Address: updateUser.Present_Address
+            //     }
+            // }
+            // const result = await ordersCollections.updateOne(filter, updateDoc, options);
+            // console.log(`A document was updated with the _id: ${result.insertedId}`)
+            // res.json(result)
         })
 
         // cancel api create
@@ -170,11 +178,11 @@ async function run() {
 
         // find specific user orders
         app.get('/myOrders/:email', async (req, res) => {
-           const email = req.params.email;
-           const query = {email};
-           const cursor = ordersCollections.find(query);
-           const result = await cursor.toArray();
-           res.json(result);
+            const email = req.params.email;
+            const query = { email };
+            const cursor = ordersCollections.find(query);
+            const result = await cursor.toArray();
+            res.json(result);
 
         })
 
