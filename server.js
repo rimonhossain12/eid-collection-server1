@@ -1,11 +1,21 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const express = require('express');
+var admin = require("firebase-admin");
 const cors = require('cors');
 const { response } = require('express');
 const ObjectId = require('mongodb').ObjectId;
+
+
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config()
+
+// firebase admin initialization
+
+var serviceAccount = require('./react-eecommerce-firebase-adminsdk-9w5xj-93e680036e.json');
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
 
 // middleware 
 app.use(cors());
@@ -15,8 +25,25 @@ app.use(express.json());
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5bitd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-// main functionally start here
 
+// firebase jwt token function
+
+async function verifyToken(req,res,next){
+    if(req.headers?.authorization?.startsWith('Bearer ')){
+        const idToken = req.headers.authorization.split('Bearer ')[1];
+        try{
+            const decodedUser = await admin.auth().verifyIdToken(idToken);
+           req.decodedUserEmail = decodedUser.email;
+        }
+        catch{
+            // console.log('Not found user');
+        }
+    }
+    next();
+}
+
+
+// main functionally start here
 async function run() {
     try {
         await client.connect();
@@ -169,13 +196,18 @@ async function run() {
         });
 
         // find specific user orders
-        app.get('/myOrders/:email', async (req, res) => {
-           const email = req.params.email;
-           const query = {email};
-           const cursor = ordersCollections.find(query);
-           const result = await cursor.toArray();
-           res.json(result);
+        app.get('/myOrders/:email', verifyToken, async  (req, res) => {
+            const email = req.params.email;
 
+            if(req.decodedUserEmail == email){
+                const query = { email };
+                const cursor = ordersCollections.find(query);
+                const result = await cursor.toArray();
+                res.json(result);
+            }
+            else{
+                res.status(401).json({message:"user not authorized"});
+            }           
         })
 
         // update user orders information
