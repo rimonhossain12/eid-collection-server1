@@ -38,8 +38,9 @@ async function run() {
         // duplicated order check and update the orders quantity
         app.post('/order2',async(req,res) => {
             const user = req.body;
-            const query =  {email: user.email};
-            const result = await ordersCollections.findOne(query);
+            const email = req.body.email;
+            const query =  {email};
+            const result = await ordersCollections.find(query);
             console.log('found date from order user Server',result);
 
             let totalOrder = parseInt(user.quantity);
@@ -47,12 +48,21 @@ async function run() {
 
             if (user.email && user.productImg === result.email && result.productImg){
                 totalOrder += parseInt(result.quantity);
-                const addedData = await ordersCollections.insertOne(user);
-                console.log(`A document was inserted with the _id: ${addedData.insertedId}`);
+                // const addedData = await ordersCollections.insertOne(user);
+                // console.log(`A document was inserted with the _id: ${addedData.insertedId}`);
+
+                const filter = {email:user.email};
+                const options = {upsert:true}
+                const updateDoc = {
+                    $set:{user}
+                }
+                const result = await ordersCollections.updateOne(filter,updateDoc,options);
+                res.json(result);
             }
             else{
                 const addedData = await ordersCollections.insertOne(user);
                 console.log(`A document was inserted with the _id: ${addedData.insertedId}`);
+                res.json(addedData)
             }
 
         })
