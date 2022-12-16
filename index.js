@@ -10,12 +10,6 @@ const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config()
 
-// firebase admin initialization
-
-var serviceAccount = require('./react-eecommerce-firebase-adminsdk-9w5xj-93e680036e.json');
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
 
 // middleware 
 app.use(cors());
